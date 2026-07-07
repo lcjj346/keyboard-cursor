@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>KeyboardCursor Settings</title>
+<style>
+  :root {
+    --bg: #16171b;
+    --panel: #1f2127;
+    --accent: #6ee7b7;
+    --text: #e8e9ec;
+    --muted: #8a8d96;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 20px;
+  }
+  h1 { font-size: 16px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+  .status {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 8px;
+    background: var(--panel); margin-bottom: 18px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #55575f; }
+  .dot.on { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #2a2c33;
+    font-size: 13px;
+  }
+  .row:last-child { border-bottom: none; }
+  input[type=range] { width: 140px; }
+  .keymap-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px;
+    background: var(--panel); padding: 12px 14px; border-radius: 8px; margin-top: 8px;
+  }
+  .keymap-grid .k { color: var(--muted); }
+  .keymap-grid .v { color: var(--accent); font-weight: 600; text-transform: uppercase; }
+  .hint { color: var(--muted); font-size: 11px; margin-top: 14px; line-height: 1.5; }
+  code { background: #2a2c33; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>KeyboardCursor</h1>
+  <div class="sub">Move your mouse cursor entirely from the keyboard.</div>
+
+  <div class="status">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">Cursor mode: off</span>
+  </div>
+
+  <div class="row">
+    <span>Base speed</span>
+    <input type="range" id="speed" min="2" max="20" />
+  </div>
+  <div class="row">
+    <span>Max speed (after holding)</span>
+    <input type="range" id="maxSpeed" min="10" max="80" />
+  </div>
+  <div class="row">
+    <span>Acceleration time (ms)</span>
+    <input type="range" id="accelTime" min="100" max="1500" step="50" />
+  </div>
+
+  <div class="keymap-grid" id="keymapGrid"></div>
+
+  <div class="hint">
+    Press <code>Right Shift</code> anywhere to toggle cursor mode on/off.<br/>
+    While on: <code>Arrow Keys</code> move the cursor, <code>Right Ctrl</code> tap
+    = left click, hold = drag, <code>K</code> right-clicks. These keys are now
+    suppressed from reaching other apps while cursor mode is on.
+  </div>
+
+  <script>
+    const dot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const speed = document.getElementById('speed');
+    const maxSpeed = document.getElementById('maxSpeed');
+    const accelTime = document.getElementById('accelTime');
+    const keymapGrid = document.getElementById('keymapGrid');
+
+    async function init() {
+      const cfg = await window.cursorApi.getConfig();
+      speed.value = cfg.speed;
+      maxSpeed.value = cfg.maxSpeed;
+      accelTime.value = cfg.accelTime;
+
+      keymapGrid.innerHTML = '';
+      for (const [action, key] of Object.entries(cfg.keymap)) {
+        keymapGrid.innerHTML += `<div class="k">${action}</div><div class="v">${key}</div>`;
+      }
+
+      const status = await window.cursorApi.getStatus();
+      updateStatus(status.cursorModeOn);
+    }
+
+    function updateStatus(on) {
+      dot.classList.toggle('on', on);
+      statusText.textContent = 'Cursor mode: ' + (on ? 'on' : 'off');
+    }
+
+    window.cursorApi.onStatusUpdate((data) => updateStatus(data.cursorModeOn));
+
+    speed.addEventListener('change', () => window.cursorApi.setConfig({ speed: Number(speed.value) }));
+    maxSpeed.addEventListener('change', () => window.cursorApi.setConfig({ maxSpeed: Number(maxSpeed.value) }));
+    accelTime.addEventListener('change', () => window.cursorApi.setConfig({ accelTime: Number(accelTime.value) }));
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "name": "keyboard-cursor",
+  "version": "0.1.0",
+  "description": "Control your mouse cursor entirely from the keyboard - no numpad required.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "author": "Louis",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "node-global-key-listener": "^0.3.0",
+    "@nut-tree-fork/nut-js": "^4.2.0",
+    "electron-store": "^8.2.0"
+  },
+  "build": {
+    "appId": "com.louis.keyboardcursor",
+    "productName": "KeyboardCursor",
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "src/**/*"
+    ]
+  }
+}
