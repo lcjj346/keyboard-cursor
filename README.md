@@ -1,87 +1,38 @@
 # KeyboardCursor
 
-Control your mouse cursor entirely from the keyboard — no numpad, no NumLock, no mouse required.
+**Control your mouse pointer entirely from the keyboard — no mouse needed.**
 
-- **Right Shift** — toggle cursor mode on/off
-- **Arrow keys** — move the cursor (accelerates the longer you hold)
-- **Right Ctrl** — tap to left-click, hold to drag
-- **K** — right click
-- Settings window lets you tune speed/acceleration and see live status
+## The problem
 
-While cursor mode is on, these keys are suppressed from reaching whatever app is
-focused, so they won't leak into a text field — turn cursor mode off (Right Shift)
-before typing normally.
+Sometimes the mouse just isn't an option. Maybe your mouse died and you're stuck. Maybe your laptop's trackpad is unreliable. Maybe reaching for the mouse constantly disrupts your typing flow, or a wrist injury makes gripping a mouse painful.
 
-## Running it (development mode)
+Windows technically has a built-in feature for this ("Mouse Keys"), but it requires a numpad — which most laptops and compact keyboards simply don't have. If your keyboard has no numpad, you're out of luck.
 
-You need [Node.js](https://nodejs.org) installed (LTS version is fine).
+KeyboardCursor fixes that. It's a small app that sits quietly in your system tray and lets you move, click, and drag the mouse pointer using keys every keyboard has: the arrow keys.
 
-```bash
-cd keyboard-cursor
-npm install
-npm start
-```
+## How it works
 
-Whenever you get an updated version of this project, always delete `node_modules`
-and `package-lock.json` and run `npm install` fresh rather than copying `node_modules`
-over from an old version — native modules are tightly coupled to the exact Electron
-version and mixing an old copy in is a common source of crashes.
+Press **Right Shift** to switch cursor mode on. Then:
 
-## Why node-global-key-listener instead of uiohook-napi
+| Key | What it does |
+|-----|--------------|
+| **Arrow keys** | Move the pointer — it speeds up the longer you hold |
+| **Right Ctrl** | Tap to left-click, hold to drag |
+| **K** | Right-click |
+| **Right Shift** | Turn cursor mode back off |
 
-An earlier version of this project used `uiohook-napi` for global key listening.
-It's a native addon that loads *inside* the Electron process, which means it has
-to exactly match Electron's internal Node-API/V8 version — and it doesn't always
-keep up with newer Electron releases, causing crashes like
-`FATAL ERROR: tsfn_to_js_proxy napi_call_function` the moment a key event fires.
+While cursor mode is on, those keys are captured by the app, so pressing arrows won't accidentally scroll the page or type into a text box. When you want to type normally again, just tap Right Shift to switch it off.
 
-`node-global-key-listener` avoids this entirely: it runs a small separate helper
-process and talks to it over stdio, so it's not sensitive to Electron's internal
-ABI at all. It also lets us **suppress** key events from reaching other apps
-(by returning `true` from the listener), which is what makes cursor mode not leak
-into text fields.
+There's also a settings window (from the tray icon) where you can adjust how fast the pointer moves, how quickly it accelerates, and see at a glance whether cursor mode is on.
 
-## If your key names don't match
+## The story
 
-Different keyboard layouts/drivers occasionally report key names slightly
-differently. If Arrow Keys / Right Ctrl / Right Shift don't seem to register,
-run this to see exactly what name each key reports:
+This started as a personal fix for a real everyday annoyance: needing to click something when using a mouse wasn't practical, and discovering that Windows' own solution assumes a numpad I didn't have. Rather than live with it, I built a lightweight tool that does one thing well — and made the keys, speed, and feel adjustable so it works the way *you* want.
 
-```bash
-set DEBUG_KEYS=1
-npm start
-```
+## A note on installing
 
-(On PowerShell: `$env:DEBUG_KEYS=1; npm start`)
+The app comes as a normal Windows installer. Because it's a small personal project and not signed by a big software company, Windows may show an "Unknown publisher" warning the first time you run it — that's expected for independent apps, not a sign anything is wrong. Click "More info" → "Run anyway" to proceed.
 
-Press the key you expect to use and watch the terminal for a line like
-`key event: UP ARROW DOWN`. Copy the exact name shown and use it in the
-`keymap` config in `src/main.js` if it differs from the default.
+---
 
-## Packaging it into a real .exe you can install
-
-```bash
-npm run dist
-```
-
-This uses `electron-builder` to produce a Windows installer under `dist/` with
-your custom icon, a Desktop shortcut, and a Start Menu entry. Since the `.exe`
-isn't code-signed, Windows SmartScreen will likely show an "Unknown publisher"
-warning on first run — normal for an unsigned app, not a bug.
-
-## Project structure
-
-```
-keyboard-cursor/
-  package.json
-  src/
-    main.js        # Electron main process: key listening, cursor movement loop, tray
-    preload.js      # safe IPC bridge for the settings window
-    settings.html   # settings UI (speed sliders, live status, keymap display)
-    icon.png / icon.ico
-```
-
-## Customizing keybinds
-
-The keymap lives in the default config inside `main.js` (`store` defaults). Edit
-the `keymap` object there to change which keys do what.
+*Built with Electron. Part of my project portfolio — [github.com/lcjj346](https://github.com/lcjj346).*
