@@ -90,10 +90,9 @@
       maxSpeed.value = cfg.maxSpeed;
       accelTime.value = cfg.accelTime;
 
-      keymapGrid.innerHTML = '';
-      for (const [action, key] of Object.entries(cfg.keymap)) {
-        keymapGrid.innerHTML += `<div class="k">${action}</div><div class="v">${key}</div>`;
-      }
+      keymapGrid.innerHTML = Object.entries(cfg.keymap)
+        .map(([action, key]) => `<div class="k">${action}</div><div class="v">${key}</div>`)
+        .join('');
 
       const status = await window.cursorApi.getStatus();
       updateStatus(status.cursorModeOn);

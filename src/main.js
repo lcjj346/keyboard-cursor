@@ -42,6 +42,25 @@ function sendStatusToWindow() {
   if (settingsWindow) settingsWindow.webContents.send('status-update', { cursorModeOn });
 }
 
+function toggleCursorMode() {
+  cursorModeOn = !cursorModeOn;
+  if (!cursorModeOn) {
+    // release any in-flight input, otherwise a key still physically held when
+    // mode turns off stays "held" forever (its key-up passes through untracked)
+    held.up = held.down = held.left = held.right = false;
+    heldSince = null;
+    if (clickKeyTimer) {
+      clearTimeout(clickKeyTimer);
+      clickKeyTimer = null;
+    }
+    if (dragStarted) {
+      dragStarted = false;
+      mouse.releaseButton(Button.LEFT);
+    }
+  }
+  sendStatusToWindow();
+}
+
 // normalize a key name for comparison - the listener library reports names
 // in upper case like "UP ARROW", "RIGHT SHIFT", "K", etc.
 function nameMatches(reportedName, configuredName) {
@@ -101,7 +120,7 @@ const keyboard = new GlobalKeyboardListener({
 
 // The listener calls back on every key event. Returning `true` suppresses
 // the key from reaching whatever app is focused - this is what lets us
-// use WASD/arrow keys for cursor control without also typing into a
+// use the arrow keys for cursor control without also typing into a
 // text field, as long as cursor mode is on.
 keyboard.addListener((e, down) => {
   if (process.env.DEBUG_KEYS) {
@@ -116,8 +135,7 @@ keyboard.addListener((e, down) => {
     if (isDown) {
       if (toggleKeyHeld) return true; // debounce OS key-repeat
       toggleKeyHeld = true;
-      cursorModeOn = !cursorModeOn;
-      sendStatusToWindow();
+      toggleCursorMode();
     } else {
       toggleKeyHeld = false;
     }
@@ -187,11 +205,7 @@ function createTray() {
         else settingsWindow.focus();
       }
     },
-    { label: 'Toggle Cursor Mode (Right Shift)', click: () => {
-        cursorModeOn = !cursorModeOn;
-        sendStatusToWindow();
-      }
-    },
+    { label: 'Toggle Cursor Mode (Right Shift)', click: () => toggleCursorMode() },
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() }
   ]);

@@ -21,8 +21,10 @@
   "build": {
     "appId": "com.louis.keyboardcursor",
     "productName": "KeyboardCursor",
+    "compression": "maximum",
+    "electronLanguages": ["en-US"],
     "win": {
-      "target": "nsis",
+      "target": ["nsis", "zip"],
       "icon": "src/icon.ico"
     },
     "nsis": {
