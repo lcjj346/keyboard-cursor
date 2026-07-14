@@ -7,6 +7,12 @@
 
 *The installer sets up shortcuts for you. The portable zip needs no installation — unzip anywhere and run `KeyboardCursor.exe`.*
 
+## See it in action
+
+![Demo of KeyboardCursor moving and clicking with the keyboard](demo/demo.gif)
+
+*(Watch the [full-quality video](demo/demo.mp4).)*
+
 ## The problem
 
 Sometimes the mouse just isn't an option. Maybe your mouse died and you're stuck. Maybe your laptop's trackpad is unreliable. Maybe reaching for the mouse constantly disrupts your typing flow, or a wrist injury makes gripping a mouse painful.

@@ -22,8 +22,6 @@ const store = new Store({
   }
 });
 
-mouse.config.mouseSpeed = 4000;
-
 let tray = null;
 let settingsWindow = null;
 let cursorModeOn = false;
